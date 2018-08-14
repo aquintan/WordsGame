@@ -1,0 +1,139 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="jumbotron">
+    <h1>Words Game</h1>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <h3 class="panel-title">Please hit start button when ready!</h3>
+            </div>
+            <div class="panel-body text-center">
+                <input type="button" value="Start" id="btnStart" class="btn btn-primary btn-big">
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <h3 class="panel-title">Game</h3>
+            </div>
+            <div class="panel-body">
+                <div class="form-group">
+                    <span class="text-primary">Time Remaining</span>
+                    <div id="counter" class="text-center big-font text-danger"></div>
+                </div>
+                <div class="form-group">
+                    <span class="text-primary">Initial Letter</span>
+                    <div id="initialLetter" class="text-danger big-font text-center"></div>
+                </div>
+                <div class="form-group">
+                    <div class="form-group">
+                        <input type="text" id="btnText" class="form-control" placeholder="Add Word">
+                        <div id="message" class="text-warning"></div>
+                    </div>
+                    <div class="form-group">
+                        <input type="button" value="Add Word" id="btnAdd" class="btn btn-success btn-lg">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <h3 class="panel-title">Words Added</h3>
+            </div>
+
+            <div class="panel-body">
+                <div id="wordList">
+                    <ul class="list-group wordList"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/game")
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#btnText").attr('disabled', 'disabled');
+            $("#btnAdd").attr('disabled', 'disabled');
+
+            $(document).on('WordsGameAppCounterDecreased', function (e, counter) {
+                console.log('Counter Decreased: ' + counter);
+                $("#counter").text(counter);
+            });
+
+            $(document).on('WordsGameAppStart', function (e, initialLetter) {
+                console.log('Game Start');                
+
+                $("#initialLetter").text(initialLetter);
+                $("#btnStart").attr('disabled', 'disabled');
+                $("#btnText").removeAttr('disabled');
+                $("#btnAdd").removeAttr('disabled');
+
+                $("#btnText").focus();
+            });
+
+            $(document).on('WordsGameAppStop', function (e) {
+                console.log('Game Stopped');
+
+                $('#wordList ul.wordList').empty();
+                $("#message").text("");
+                $("#btnStart").removeAttr('disabled');
+                $("#btnText").attr('disabled', 'disabled');
+                $("#btnAdd").attr('disabled', 'disabled');
+            });
+
+            $(document).on('WordsGameAppWordAdded', function (e, newWord, words) {
+                var li = $('<li class="list-group-item"></li>').text(newWord);
+                $('#wordList ul.wordList').append(li);
+
+                $("#btnText").val("");
+                $("#btnText").focus();
+                
+
+                $("#message").removeClass('text-warning');
+                $("#message").addClass('text-success');
+                $("#message").text("Word Added");
+            });
+
+            $(document).on('WordsGameAppInvalidWord', function (e, word) {                
+                $("#message").removeClass('text-success');
+                $("#message").addClass('text-warning');
+                $("#message").text("Word not added");
+
+                $("#btnText").focus();
+                $("#btnText").select();
+            });
+
+            $('#btnText').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)
+                {
+                    $("#btnAdd").click();
+                    return false;
+                }
+            });
+
+            $("#btnStart").on('click', function (e) {
+                $("#btnStart").attr('disabled', 'disabled');
+                window.WordsGameApp.start();
+            });
+
+            $("#btnAdd").on('click', function (e) {
+                var wordAdded = $("#btnText").val().toUpperCase();
+                console.log('Button Add Clicked, Word Added = ' + wordAdded);
+
+                window.WordsGameApp.addWord(wordAdded);
+            });
+        });
+    </script>
+}

@@ -1,0 +1,31 @@
+﻿@model Dictionary<string, List<string>>
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+    <h2>Lastest Game Records for Users</h2>
+
+    @if (Model.Count > 0)
+    {
+        <div class="col-md-6">
+            @foreach (var item in Model.Keys)
+            {
+                <h3>User: @item</h3>
+                <div class="text-center">
+                    <ul class="list-group">
+                        @foreach (var value in Model[item])
+                        {
+                            <li class="list-group-item">@value</li>
+                        }
+                    </ul>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <h3>No game records available</h3>
+    }
+</div>
